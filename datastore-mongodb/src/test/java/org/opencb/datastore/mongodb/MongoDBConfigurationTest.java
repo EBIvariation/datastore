@@ -1,9 +1,10 @@
 package org.opencb.datastore.mongodb;
 
-import com.mongodb.DB;
 import com.mongodb.MongoClient;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+
+import com.mongodb.client.MongoDatabase;
 import org.junit.Test;
 
 /**
@@ -22,7 +23,7 @@ public class MongoDBConfigurationTest {
         System.out.println(mongoDBConfiguration.toJson());
 
         MongoClient client = new MongoClient("localhost");
-        DB db = client.getDB("test");
+        MongoDatabase db = client.getDatabase("test");
 
         MongoDataStore mongoDataStore = new MongoDataStore(client, db, mongoDBConfiguration);
         

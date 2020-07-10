@@ -1,7 +1,13 @@
 package org.opencb.datastore.mongodb;
 
 import java.util.*;
+import java.util.function.Consumer;
+
 import com.mongodb.*;
+import com.mongodb.client.MongoDatabase;
+import org.bson.BsonDocument;
+import org.bson.BsonInt32;
+import org.bson.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,20 +27,20 @@ public class MongoDataStore {
     private Map<String, MongoDBCollection> mongoDBCollections = new HashMap<>();
 
     private MongoClient mongoClient;
-    private DB db;
+    private MongoDatabase db;
     private MongoDBConfiguration mongoDBConfiguration;
 
     protected Logger logger = LoggerFactory.getLogger(MongoDataStore.class);
 
-    MongoDataStore(MongoClient mongoClient, DB db, MongoDBConfiguration mongoDBConfiguration) {
+    MongoDataStore(MongoClient mongoClient, MongoDatabase db, MongoDBConfiguration mongoDBConfiguration) {
         this.mongoClient = mongoClient;
         this.db = db;
         this.mongoDBConfiguration = mongoDBConfiguration;
     }
 
     public boolean test() {
-        CommandResult commandResult = db.getStats();
-        return commandResult != null && commandResult.getBoolean("ok");
+        Document commandResult = db.runCommand(new BsonDocument("dbStats", new BsonInt32(1)));
+        return commandResult != null && commandResult.getDouble("ok") == 1.0;
     }
 
 
@@ -48,21 +54,25 @@ public class MongoDataStore {
     }
 
     public MongoDBCollection createCollection(String collectionName) {
-        if(!db.getCollectionNames().contains(collectionName)) {
-            db.createCollection(collectionName, null);
+        List<String> collectionNames = new ArrayList<>();
+        db.listCollectionNames().forEach((Consumer<? super String>) name -> collectionNames.add(name));
+        if(!collectionNames.contains(collectionName)) {
+            db.createCollection(collectionName);
         }
         return getCollection(collectionName);
     }
 
     public void dropCollection(String collectionName) {
-        if(db.getCollectionNames().contains(collectionName)) {
+        List<String> collectionNames = new ArrayList<>();
+        db.listCollectionNames().forEach((Consumer<? super String>) collectionNames::add);
+        if(collectionNames.contains(collectionName)) {
             db.getCollection(collectionName).drop();
             mongoDBCollections.remove(collectionName);
         }
     }
 
     public List<String> getCollectionNames() {
-        Iterator<String> iterator = db.getCollectionNames().iterator();
+        Iterator<String> iterator = db.listCollectionNames().iterator();
         List<String> list = new ArrayList<>();
         while(iterator.hasNext()) {
             list.add(iterator.next());
@@ -70,8 +80,8 @@ public class MongoDataStore {
         return list;
     }
 
-    public Map<String, Object> getStats(String collectionName) {
-        return new HashMap<>(db.getStats());
+    public Document getStats(String collectionName) {
+        return db.runCommand(new BsonDocument("dbStats", new BsonInt32(1)));
     }
 
 
@@ -89,7 +99,7 @@ public class MongoDataStore {
         return mongoDBCollections;
     }
 
-    public DB getDb() {
+    public MongoDatabase getDb() {
         return db;
     }
 

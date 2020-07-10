@@ -4,7 +4,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>org.opencb.datastore</groupId>
+    <groupId>uk.ac.ebi.eva</groupId>
     <artifactId>datastore</artifactId>
     <version>0.3.3</version>
     <packaging>pom</packaging>
@@ -21,7 +21,7 @@
 
     <properties>
         <datastore.version>0.3.3</datastore.version>
-        <compileSource>1.7</compileSource>
+        <compileSource>1.8</compileSource>
     </properties>
 
     <scm>
@@ -61,12 +61,12 @@
     <dependencyManagement>
         <dependencies>
             <dependency>
-                <groupId>org.opencb.datastore</groupId>
+                <groupId>uk.ac.ebi.eva</groupId>
                 <artifactId>datastore-core</artifactId>
                 <version>${datastore.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.opencb.datastore</groupId>
+                <groupId>uk.ac.ebi.eva</groupId>
                 <artifactId>datastore-mongodb</artifactId>
                 <version>${datastore.version}</version>
             </dependency>
@@ -74,7 +74,7 @@
             <dependency>
                 <groupId>org.mongodb</groupId>
                 <artifactId>mongo-java-driver</artifactId>
-                <version>2.13.0</version>
+                <version>3.8.2</version>
                 <optional>true</optional>
             </dependency>
             <dependency>
