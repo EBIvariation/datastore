@@ -6,7 +6,7 @@
 
     <groupId>uk.ac.ebi.eva</groupId>
     <artifactId>datastore</artifactId>
-    <version>0.3.3</version>
+    <version>0.3.3-mongo4</version>
     <packaging>pom</packaging>
 
     <name>OpenCB datastore project</name>
@@ -20,7 +20,7 @@
     </modules>
 
     <properties>
-        <datastore.version>0.3.3</datastore.version>
+        <datastore.version>0.3.3-mongo4</datastore.version>
         <compileSource>1.8</compileSource>
     </properties>
 
@@ -185,29 +185,35 @@
                     </execution>
                 </executions>
             </plugin>
-            <plugin>
-                <groupId>org.sonatype.plugins</groupId>
-                <artifactId>nexus-staging-maven-plugin</artifactId>
-                <version>1.6.2</version>
-                <extensions>true</extensions>
-                <configuration>
-                    <serverId>ossrh</serverId>
-                    <nexusUrl>https://oss.sonatype.org/</nexusUrl>
-                    <autoReleaseAfterClose>true</autoReleaseAfterClose>
-                </configuration>
-            </plugin>
         </plugins>
     </build>
 
     <distributionManagement>
         <snapshotRepository>
-            <id>ossrh</id>
-            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+            <id>eva-snapshots</id>
+            <url>https://oss.jfrog.org/artifactory/oss-snapshot-local</url>
         </snapshotRepository>
         <repository>
-            <id>ossrh</id>
-            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+            <id>eva-releases</id>
+            <url>https://oss.jfrog.org/artifactory/oss-release-local</url>
         </repository>
     </distributionManagement>
-    
+
+    <repositories>
+        <repository>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <id>eva-releases</id>
+            <url>https://oss.jfrog.org/artifactory/libs-release</url>
+        </repository>
+        <repository>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+            <id>eva-snapshots</id>
+            <url>https://oss.jfrog.org/artifactory/libs-snapshot</url>
+        </repository>
+    </repositories>
+
 </project>

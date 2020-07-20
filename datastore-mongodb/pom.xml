@@ -7,7 +7,7 @@
     <parent>
         <groupId>uk.ac.ebi.eva</groupId>
         <artifactId>datastore</artifactId>
-        <version>0.3.3</version>
+        <version>0.3.3-mongo4</version>
         <relativePath>..</relativePath>
     </parent>
 
