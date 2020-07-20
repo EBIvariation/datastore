@@ -63,7 +63,7 @@ public class MongoDBNativeQuery {
         }
         for (T obj: distinctIterable) {
             result.add(obj);
-        } ;
+        }
         return result;
     }
 
