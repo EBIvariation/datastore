@@ -122,6 +122,8 @@ public class MongoDataStoreManager {
 //                db.setReadPreference(ReadPreference.primary());
                 String user = mongoDBConfiguration.getString("username", "");
                 String pass = mongoDBConfiguration.getString("password", "");
+                //Default authentication mechanism starting MongoDB 4.0 is SCRAM-SHA-256
+                String authenticationMechanism = mongoDBConfiguration.getString("authenticationMechanism", "SCRAM-SHA-256");
                 if((user != null && !user.equals("")) || (pass != null && !pass.equals(""))) {
                     final MongoDatabase authenticationDatabase;
                     if (mongoDBConfiguration.get("authenticationDatabase") != null
@@ -133,13 +135,15 @@ public class MongoDataStoreManager {
 
                     mc = new MongoClient(serverAddresses,
                                          MongoCredential.createCredential(user, authenticationDatabase.getName(),
-                                                                          pass.toCharArray()),
+                                                                          pass.toCharArray())
+                                                 .withMechanism(AuthenticationMechanism.fromMechanismName(
+                                                         authenticationMechanism)),
                                          mongoClientOptions);
                 }
 
                 long t1 = System.currentTimeMillis();
                 logger.debug("MongoDataStoreManager: MongoDataStore object for database: '" + database + "' created in " + (t0 - t1) + "ms");
-                mongoDataStore = new MongoDataStore(mc, db, mongoDBConfiguration);
+                mongoDataStore = new MongoDataStore(mc, mc.getDatabase(database), mongoDBConfiguration);
             } catch (Exception e) {
                 e.printStackTrace();
             }
