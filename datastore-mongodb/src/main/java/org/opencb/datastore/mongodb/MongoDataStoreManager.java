@@ -1,12 +1,12 @@
 package org.opencb.datastore.mongodb;
 
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import com.mongodb.*;
+import com.mongodb.client.MongoDatabase;
 import org.opencb.datastore.core.config.DataStoreServerAddress;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -100,11 +100,13 @@ public class MongoDataStoreManager {
                         .build();
 
                 assert(dataStoreServerAddresses != null);
-                
+                List<ServerAddress> serverAddresses = new ArrayList<>();
                 if(dataStoreServerAddresses.size() == 1) {
-                    mc = new MongoClient(new ServerAddress(dataStoreServerAddresses.get(0).getHost(), dataStoreServerAddresses.get(0).getPort()), mongoClientOptions);
+                    serverAddresses.add(new ServerAddress(dataStoreServerAddresses.get(0).getHost(),
+                                                          dataStoreServerAddresses.get(0).getPort()));
+                    mc = new MongoClient(serverAddresses, mongoClientOptions);
                 } else {
-                    List<ServerAddress> serverAddresses = new ArrayList<>(dataStoreServerAddresses.size());
+                    serverAddresses = new ArrayList<>(dataStoreServerAddresses.size());
                     for(DataStoreServerAddress serverAddress: dataStoreServerAddresses) {
                         serverAddresses.add(new ServerAddress(serverAddress.getHost(), serverAddress.getPort()));
                     }
@@ -115,26 +117,34 @@ public class MongoDataStoreManager {
 //                mc.setReadPreference(ReadPreference.primary());
 //                System.out.println("Replica Status: "+mc.getReplicaSetStatus());
                 logger.debug(mongoDBConfiguration.toString());
-                DB db = mc.getDB(database);
+                MongoDatabase db = mc.getDatabase(database);
 //                db.setReadPreference(ReadPreference.secondary(new BasicDBObject("dc", "PG")));
 //                db.setReadPreference(ReadPreference.primary());
                 String user = mongoDBConfiguration.getString("username", "");
                 String pass = mongoDBConfiguration.getString("password", "");
+                //Default authentication mechanism starting MongoDB 4.0 is SCRAM-SHA-256
+                String authenticationMechanism = mongoDBConfiguration.getString("authenticationMechanism", "SCRAM-SHA-256");
                 if((user != null && !user.equals("")) || (pass != null && !pass.equals(""))) {
-                    final DB authenticationDatabase;
+                    final MongoDatabase authenticationDatabase;
                     if (mongoDBConfiguration.get("authenticationDatabase") != null
                             && !mongoDBConfiguration.getString("authenticationDatabase").isEmpty()) {
-                        authenticationDatabase = mc.getDB(mongoDBConfiguration.getString("authenticationDatabase"));
+                        authenticationDatabase = mc.getDatabase(mongoDBConfiguration.getString("authenticationDatabase"));
                     } else {
                         authenticationDatabase = db;
                     }
-                    authenticationDatabase.authenticate(user, pass.toCharArray());
+
+                    mc = new MongoClient(serverAddresses,
+                                         MongoCredential.createCredential(user, authenticationDatabase.getName(),
+                                                                          pass.toCharArray())
+                                                 .withMechanism(AuthenticationMechanism.fromMechanismName(
+                                                         authenticationMechanism)),
+                                         mongoClientOptions);
                 }
 
                 long t1 = System.currentTimeMillis();
                 logger.debug("MongoDataStoreManager: MongoDataStore object for database: '" + database + "' created in " + (t0 - t1) + "ms");
-                mongoDataStore = new MongoDataStore(mc, db, mongoDBConfiguration);
-            } catch (UnknownHostException e) {
+                mongoDataStore = new MongoDataStore(mc, mc.getDatabase(database), mongoDBConfiguration);
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         } else {
@@ -174,7 +184,7 @@ public class MongoDataStoreManager {
                 long t1 = System.currentTimeMillis();
                 logger.debug("MongoDataStoreManager: remove MongoDataStore object for database");
                 mongoDataStores.remove(database);
-            } catch (UnknownHostException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         } else {

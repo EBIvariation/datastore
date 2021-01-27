@@ -4,9 +4,9 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>org.opencb.datastore</groupId>
+    <groupId>uk.ac.ebi.eva</groupId>
     <artifactId>datastore</artifactId>
-    <version>0.3.3</version>
+    <version>0.3.3-mongo4</version>
     <packaging>pom</packaging>
 
     <name>OpenCB datastore project</name>
@@ -20,8 +20,8 @@
     </modules>
 
     <properties>
-        <datastore.version>0.3.3</datastore.version>
-        <compileSource>1.7</compileSource>
+        <datastore.version>0.3.3-mongo4</datastore.version>
+        <compileSource>1.8</compileSource>
     </properties>
 
     <scm>
@@ -61,12 +61,12 @@
     <dependencyManagement>
         <dependencies>
             <dependency>
-                <groupId>org.opencb.datastore</groupId>
+                <groupId>uk.ac.ebi.eva</groupId>
                 <artifactId>datastore-core</artifactId>
                 <version>${datastore.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.opencb.datastore</groupId>
+                <groupId>uk.ac.ebi.eva</groupId>
                 <artifactId>datastore-mongodb</artifactId>
                 <version>${datastore.version}</version>
             </dependency>
@@ -74,7 +74,7 @@
             <dependency>
                 <groupId>org.mongodb</groupId>
                 <artifactId>mongo-java-driver</artifactId>
-                <version>2.13.0</version>
+                <version>3.8.2</version>
                 <optional>true</optional>
             </dependency>
             <dependency>
@@ -185,29 +185,35 @@
                     </execution>
                 </executions>
             </plugin>
-            <plugin>
-                <groupId>org.sonatype.plugins</groupId>
-                <artifactId>nexus-staging-maven-plugin</artifactId>
-                <version>1.6.2</version>
-                <extensions>true</extensions>
-                <configuration>
-                    <serverId>ossrh</serverId>
-                    <nexusUrl>https://oss.sonatype.org/</nexusUrl>
-                    <autoReleaseAfterClose>true</autoReleaseAfterClose>
-                </configuration>
-            </plugin>
         </plugins>
     </build>
 
     <distributionManagement>
         <snapshotRepository>
-            <id>ossrh</id>
-            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+            <id>eva-snapshots</id>
+            <url>https://oss.jfrog.org/artifactory/oss-snapshot-local</url>
         </snapshotRepository>
         <repository>
-            <id>ossrh</id>
-            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+            <id>eva-releases</id>
+            <url>https://oss.jfrog.org/artifactory/oss-release-local</url>
         </repository>
     </distributionManagement>
-    
+
+    <repositories>
+        <repository>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <id>eva-releases</id>
+            <url>https://oss.jfrog.org/artifactory/libs-release</url>
+        </repository>
+        <repository>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+            <id>eva-snapshots</id>
+            <url>https://oss.jfrog.org/artifactory/libs-snapshot</url>
+        </repository>
+    </repositories>
+
 </project>
