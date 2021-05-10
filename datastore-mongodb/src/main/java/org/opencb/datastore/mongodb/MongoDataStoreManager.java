@@ -97,6 +97,7 @@ public class MongoDataStoreManager {
                 MongoClientOptions mongoClientOptions = new MongoClientOptions.Builder()
                         .connectionsPerHost(mongoDBConfiguration.getInt("connectionsPerHost", 100))
                         .connectTimeout(mongoDBConfiguration.getInt("connectTimeout", 10000))
+                        .writeConcern(WriteConcern.MAJORITY)
                         .build();
 
                 assert(dataStoreServerAddresses != null);
